@@ -1,7 +1,7 @@
 #%%
 import numpy as np
 # %%
-nx, ny = 100, 100
+nx, ny = 1000, 1000
 space = np.random.randint(0, 2, (nx, ny))
 # space = np.zeros((nx, ny))
 space[1:4, 2] = 1
@@ -43,6 +43,27 @@ def keep_on_rollin_baby(space):
     out[0, 0:] = 0
     out[nx-1, 0:] = 0
     return out
+
+def keep_on_rollin_baby_general(space, s, b):
+    aggregation = np.zeros(space.shape)
+    aggregation += np.roll(space, (0,1), axis = (0,1))
+    aggregation += np.roll(space, (0,-1), axis = (0,1))
+    aggregation += np.roll(space, (1,0), axis = (0,1))
+    aggregation += np.roll(space, (-1,0), axis = (0,1))
+    aggregation += np.roll(space, (1,1), axis = (0,1))
+    aggregation += np.roll(space, (1,-1), axis = (0,1))
+    aggregation += np.roll(space, (-1,1), axis = (0,1))
+    aggregation += np.roll(space, (-1,-1), axis = (0,1))
+    idx1 = np.where(aggregation == s)
+    out2 = (aggregation == b)*1
+    out1 = np.zeros(space.shape)
+    out1[idx1] = 1
+    out = out1+out2
+    out[0:, 0] = 0
+    out[0:, ny-1] = 0
+    out[0, 0:] = 0
+    out[nx-1, 0:] = 0
+    return out
 # %%
 out = space
 import matplotlib.pyplot as plt
@@ -53,6 +74,13 @@ for g in range(generations):
     plt.close()
 
 # %%
+    
+out = space
+import matplotlib.pyplot as plt
+for g in range(generations):
+    out = keep_on_rollin_baby_general(out, 256, 36).reshape(nx,ny)
+
 plt.imshow(out[:,:], cmap='Greys', interpolation='nearest')
+#%%   
 plt.savefig(f'plocik.png')
 # %%
