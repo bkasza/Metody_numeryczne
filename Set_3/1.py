@@ -8,6 +8,7 @@ class antoni():
     def __init__(self, pos, nx, ny):
         self.pos = pos
         self.food = False
+        self.doordash = False
         self.nx = nx
         self.ny = ny
         self.init_dir()
@@ -20,16 +21,12 @@ class antoni():
     def find_food(self):
         self.food = True
     def pbc_any(self, val):
-        if np.abs(val[0]) == self.nx:
-            val[0] = 0
-        if np.abs(val[1]) == self.ny:
-            val[1] = 0
-        return [val[0], val[1]]
+        val[0] = val[0]%self.nx
+        val[1] = val[1]%self.ny
+        return val
     def pbc(self):
-        if self.pos[0] == self.nx:
-            self.pos[0] = 0
-        if self.pos[1] == self.ny:
-            self.pos[1] = 0
+        self.pos[0] = self.pos[0]%self.nx
+        self.pos[1] = self.pos[1]%self.ny
     def far_away(self, no_longer = False):
         if no_longer:
             self.away = 0
@@ -39,16 +36,20 @@ class antoni():
         if d[0] == 0:
             return np.array([[1, d[1]],[0, d[1]],[-1, d[1]]])
         elif d[1] == 0:
-            return np.array([[d[0], 1],[d[1], 0],[d[1], 1]])
+            return np.array([[d[0], 1],[d[0], 0],[d[0], -1]])
         else: 
             return np.array([[0, d[1]], [d[0], d[1]], [d[0], 0]])
     def find_next_cell(self, space, home_fero, food_fero):
+        self.doordash = False
         al = 5
-        h = 4
+        h = 2
         ndir = self.find_next_dir()
+        # print(ndir)
         ncells = ndir + np.array(self.pos)
+        # print(ncells)
         for i in range(ncells.shape[0]):
             ncells[i] = self.pbc_any(ncells[i])
+        # print(ncells)
         if self.food == False:
             if any(space[ncells[:,0], ncells[:, 1]] == 1):
                 new_idx = np.where(space[ncells[:,0], ncells[:, 1]] == 1)
@@ -73,6 +74,7 @@ class antoni():
                 new_cell = ncells[new_idx][0]
                 ndir = self.dir*(-1)
                 self.food = False
+                self.doordash = True
             else: 
                 fferons = food_fero[ncells[:,0], ncells[:,1]]
                 fferons = (fferons + h)**al
@@ -86,10 +88,12 @@ class antoni():
         if self.food:
             home_fero[self.pos[0], self.pos[1]] += 1
         else:
-            food_fero[self.pos[0], self.pos[1]] += 1/(1+self.away*0.01)
+            food_fero[self.pos[0], self.pos[1]] += 1/(1+self.away*0.05)
+        # print(self.pos)
         self.pos = new_cell
         self.pbc()
-        return (space, home_fero, food_fero)
+        self.dir = ndir
+        return (space, home_fero, food_fero, self.doordash)
 # %%
 'big food chunk'
 nx, ny = 80, 80
@@ -104,27 +108,42 @@ space[:nfoodx, :nfoody] = 1
 'chata'
 space[nx0, ny0] = 2
 mrowisko = []
-antosie = 100
+antosie = 80
 def gen_ants():
     for i in range(antosie):
         mrowisko.append(antoni([nx0,ny0], 80,80))
         # print(mrowisko[i].dir)
 gen_ants()# %%
-step = 1000
+step = 2000
+foodcount = 0
+totfood = nfoodx*nfoody
 for i in range(step):
+    posx = []
+    posy = []
     for antek in mrowisko:
         a = antek.find_next_cell(space, home_fero, food_fero)
         space = a[0]
         home_fero = a[1]
         food_fero = a[2]
-    home_fero = home_fero * 0.99
-    food_fero = food_fero * 0.99
-    # if i%10 == 0:
-    #     plt.imshow(home_fero+food_fero)
-    #     plt.savefig(f'{i:06d}.png')
-# %%
+        if a[3]:
+            foodcount += 1
+        posx.append(antek.pos[0])
+        posy.append(antek.pos[1])
+        # print(antek.pos)
+    home_fero = home_fero * 0.999
+    food_fero = food_fero * 0.999
+    if i%10 == 0:
+        plt.imshow(home_fero+food_fero)
+        plt.scatter(posy,posx, marker='.', color = 'black')
+        plt.gcf().set_facecolor("pink")
+        plt.title(f'step {i}, food: {foodcount}, totfodd: {totfood}')
+        plt.savefig(f'{i:06d}.png')
+        plt.close()
+    # %%
 # plt.imshow(np.log(home_fero))
+# plt.scatter(posy,posx, marker='.', color = 'red', vmin=0, vmax = 80)
 plt.imshow(food_fero)
 plt.savefig('plot.png', dpi = 300)
 plt.colorbar()
+plt.show()
 # %%
