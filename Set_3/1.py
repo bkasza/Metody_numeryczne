@@ -68,6 +68,7 @@ class antoni():
                 new_idx = np.random.choice(np.arange(3), 1, p = prob)  
                 new_cell = ncells[new_idx][0]
                 ndir = ndir[new_idx][0]
+                self.far_away()
         else:
             if any(space[ncells[:,0], ncells[:, 1]] == 2):
                 new_idx = np.where(space[ncells[:,0], ncells[:, 1]] == 2)
@@ -75,6 +76,7 @@ class antoni():
                 ndir = self.dir*(-1)
                 self.food = False
                 self.doordash = True
+                self.far_away(no_longer=True)
             else: 
                 fferons = food_fero[ncells[:,0], ncells[:,1]]
                 fferons = (fferons + h)**al
@@ -85,10 +87,11 @@ class antoni():
                 new_idx = np.random.choice(np.arange(3), 1, p = prob)  
                 new_cell = ncells[new_idx][0]
                 ndir = ndir[new_idx][0]
+                self.far_away()
         if self.food:
-            home_fero[self.pos[0], self.pos[1]] += 1
+            home_fero[self.pos[0], self.pos[1]] += 0.99**self.away
         else:
-            food_fero[self.pos[0], self.pos[1]] += 1/(1+self.away*0.05)
+            food_fero[self.pos[0], self.pos[1]] += 0.99**self.away
         # print(self.pos)
         self.pos = new_cell
         self.pbc()
@@ -114,7 +117,7 @@ def gen_ants():
         mrowisko.append(antoni([nx0,ny0], 80,80))
         # print(mrowisko[i].dir)
 gen_ants()# %%
-step = 2000
+step = 3000
 foodcount = 0
 totfood = nfoodx*nfoody
 for i in range(step):
@@ -130,9 +133,9 @@ for i in range(step):
         posx.append(antek.pos[0])
         posy.append(antek.pos[1])
         # print(antek.pos)
-    home_fero = home_fero * 0.999
-    food_fero = food_fero * 0.999
-    if i%10 == 0:
+    home_fero = home_fero * 0.99
+    food_fero = food_fero * 0.99
+    if i%100 == 0:
         plt.imshow(home_fero+food_fero)
         plt.scatter(posy,posx, marker='.', color = 'black')
         plt.gcf().set_facecolor("pink")
@@ -142,7 +145,7 @@ for i in range(step):
     # %%
 # plt.imshow(np.log(home_fero))
 # plt.scatter(posy,posx, marker='.', color = 'red', vmin=0, vmax = 80)
-plt.imshow(food_fero)
+plt.imshow(space)
 plt.savefig('plot.png', dpi = 300)
 plt.colorbar()
 plt.show()
