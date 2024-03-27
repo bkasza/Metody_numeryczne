@@ -23,7 +23,7 @@ tau = 3 * visc + 1 / 2
 new_idx = np.array([0, 3, 4, 1, 2, 7, 8, 5, 6])
 # %%
 "create space"
-"1 - obstascle"
+"1 - obstacle"
 space = (
     np.fromfunction(lambda x, y: abs(x - Nx / 4) + abs(y) < Ny / 2, shape=(Nx, Ny))
     * 1.0
@@ -37,12 +37,22 @@ obst_idx = np.where(space == 1)
 def D2norm(mat):
     return np.sum(mat * mat, axis=2)
 
-
-def calc_feq_0(rho_lattice, f_lattice, v_lattice, init=False):
+def calc_rho0(rho_lattice, f_lattice, v0_lattice):
     "step 1.1"
+    f = f_lattice
+    data = (
+        2 * (f[0, :, 3] + f[0, :, 6] + f[0, :, 7])
+        + f[0, :, 0]
+        + f[0, :, 2]
+        + f[0, :, 4]
+    # ) / (1 - np.abs(u0))
+    ) / (1 - np.sqrt(np.sum(v0_lattice[0, :, :]*v0_lattice[0, :, :], axis=1)))
+    rho_lattice[0, :] = data
+    return rho_lattice
+
+def calc_feq_0(rho_lattice, f_eq, v_lattice):
+    "step 1.2"
     prod = np.sum(direction[_, _, :, :] * v_lattice[:, :, _, :], axis=3)
-    if init:
-        rho_lattice[:, :] = rho0
     f = (
         W[_, _, :]
         * rho_lattice[0, :, _]
@@ -53,24 +63,11 @@ def calc_feq_0(rho_lattice, f_lattice, v_lattice, init=False):
             - 3 / 2 * D2norm(v_lattice)[0, :, _]
         )
     )
-    f_lattice[0, :, :] = f
-    return f_lattice
+    f_eq[0, :, :] = f
+    return f_eq
 
-
-def calc_rho0(rho_lattice, f_lattice, f_eq):
-    "step 1.2"
-    f = f_lattice.copy()
-    data = (
-        2 * (f[0, :, 3] + f[0, :, 6] + f[0, :, 7])
-        + f[0, :, 0]
-        + f[0, :, 2]
-        + f[0, :, 4]
-    ) / (1 - np.abs(u0))
-    rho_lattice[0, :] = data
-    return rho_lattice
-
-def calc_inlet_outlet(rho_lattice, f_lattice, f_eq):
-    f = f_lattice.copy()
+def calc_inlet_outlet(f_lattice, f_eq):
+    f = f_lattice
     f[0, :, 1] = f_eq[0, :, 1]
     f[0, :, 5] = f_eq[0, :, 5]
     f[0, :, 8] = f_eq[0, :, 8]
@@ -95,7 +92,7 @@ def calc_velosity(rho_lattice, f_lattice):
     return u
 
 
-def calc_feq(rho_lattice, f_lattice, v_lattice):
+def calc_feq(rho_lattice, v_lattice):
     "step 3.3"
     prod = np.sum(direction[_, _, :, :] * v_lattice[:, :, _, :], axis=3)
     f_eq = (
@@ -113,9 +110,10 @@ def calc_feq(rho_lattice, f_lattice, v_lattice):
 
 def calc_fcol(f_lattice, f_eq):
     "step 4,5"
-    f = f_lattice - (f_lattice - f_eq) / tau
-    f[obst_idx][:] = f_lattice[obst_idx][:, new_idx]
-    return f
+    fcol = f_lattice - (f_lattice - f_eq) / tau
+    for i in new_idx:
+        fcol[obst_idx][i] = f_lattice[obst_idx][i]
+    return fcol
 
 
 def calc_stream(f_lattice):
@@ -137,21 +135,25 @@ f_eq = np.zeros((Nx, Ny))
 y = np.linspace(0, Ny, Ny)
 u0 = u_in * (1 + eps * np.sin(2 * np.pi * y / (Ny - 1)))
 v0_lattice[:, :, 0] = u0[_,:]
+v_lattice = v0_lattice
 
 steps = 10
-f_eq = calc_feq(rho_lattice, f_lattice, v0_lattice)
+f_eq = calc_feq(rho_lattice, v0_lattice)
 f_lattice = np.copy(f_eq)
 for s in range(steps):
-    f_eq0 = calc_feq_0(rho_lattice, f_lattice, v0_lattice)
-    f_lattice = calc_inlet_outlet(rho_lattice, f_lattice, f_eq0)
+    rho_lattice = calc_rho0(rho_lattice, f_lattice, v0_lattice)
+    f_eq0 = calc_feq_0(rho_lattice, f_eq, v0_lattice)
+    f_lattice = calc_inlet_outlet(f_lattice, f_eq0)
     rho_lattice = calc_density(f_lattice)
     v_lattice = calc_velosity(rho_lattice, f_lattice)
-    f_eq = calc_feq(rho_lattice, f_lattice, v_lattice)
-    f_lattice = calc_fcol(f_lattice, f_eq)
-    f_lattice = calc_stream(f_lattice)
+    f_eq = calc_feq(rho_lattice, v_lattice)
+    f_col = calc_fcol(f_lattice, f_eq)
+    f_lattice = calc_stream(f_col)
 
 # %%
 plotek = D2norm(v_lattice)
 plt.imshow(plotek.T, cmap="hot")
 plt.colorbar()
+# %%
+print(f_lattice[:,:,1])
 # %%

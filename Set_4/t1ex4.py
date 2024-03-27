@@ -1,8 +1,8 @@
 # %%
-import imageio
+# import imageio
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm
+# from tqdm import tqdm
 # constants
 # vel_vects = [[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]]
 # vel_vects_reverse = list((-1)*np.array(vel_vects))
@@ -15,7 +15,6 @@ def calc_f_eq(rho, u, Nx, Ny):
     vel_vects = [[0, 0], [1, 0], [0, 1], [-1, 0],
                  [0, -1], [1, 1], [-1, 1], [-1, -1], [1, -1]]
     W = [4/9, 1/9, 1/9, 1/9, 1/9, 1/36, 1/36, 1/36, 1/36]
-
     ret_f = np.zeros((9, Nx, Ny))
     norm_u = np.einsum('ijk,ijk->ij', u, u)
 
@@ -48,7 +47,7 @@ def boundary_calc(f, u0, Ny):
               f[1, 0, :] + f[2, 0, :])/(1-np.sum(u0[0, :, :]*u0[0, :, :], axis=1))
     u_x0 = u0[0, :, :]
     f_eq_x0 = calc_f_x0(rho_x0, u_x0, Ny)
-
+    # print(np.sum(u0[0, :, :]*u0[0, :, :], axis=1))
     # step 2
     f[1, 0, :] = f_eq_x0[1, :]
     f[5, 0, :] = f_eq_x0[5, :]
@@ -108,8 +107,7 @@ def plot(f, t, fnames, re, save=False, show=False):
     plt.imshow(calc_norm_u_from_f(f), cmap='hot')
     plt.title(f't:{t}, Re:{re}')
     if save:
-        plt.savefig(f'./imgs/lbm_{t}.png')
-        fnames.append(f'./imgs/lbm_{t}.png')
+        plt.savefig(f'{t}.png')
     if show:
         plt.show()
 
@@ -120,7 +118,7 @@ def run(Nx, Ny, tau, obstacle, u0, rho0, T_max, Re, fnames=[], save=False):
     # initialize with f_eq for given u0, rho0
     f = calc_f_eq(rho0, u0, Nx, Ny)
     # main loop
-    for i in tqdm(range(T_max)):
+    for i in range(T_max):
         f = boundary_calc(f, u0, Ny)
 
         f_eq = recalc_density(f, Nx, Ny)
@@ -131,8 +129,7 @@ def run(Nx, Ny, tau, obstacle, u0, rho0, T_max, Re, fnames=[], save=False):
 
         if i % 100 == 0:
             plot(f, i, fnames, Re, save)
-
-
+    # print(f[1])
 # %%
 # TODO Re = 110
 Nx = 520
@@ -160,10 +157,7 @@ rho0 = np.full((Nx, Ny), 1)
 
 # %%
 filenames = []
-run(Nx, Ny, tau, full_obstacle, u0, rho0, 20000, Re, filenames, save=True)
+run(Nx, Ny, tau, full_obstacle, u0, rho0, 1, Re, filenames, save=True)
 # %%
-with imageio.get_writer('./re220.gif', mode='I', duration=40) as writer:
-    for frame in filenames:
-        image = imageio.imread(frame)
-        writer.append_data(image)
-writer.close()
+u0.shape
+# %%
