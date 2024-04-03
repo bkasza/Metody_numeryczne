@@ -113,12 +113,12 @@ def calc_fitness(grid):
 
 def fitness(space, chromos):
     f_seq = []
+    space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
     for ch in chromos:
-        space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
-        space = iter_grid(space, ch)
+        spacex = iter_grid(space, ch)
         for s in space:
             f = calc_fitness(s)
-        f_seq.append(f / space.shape[0])
+        f_seq.append(f / spacex.shape[0])
     return np.array(f_seq)
 
 
