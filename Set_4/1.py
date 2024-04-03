@@ -13,7 +13,7 @@ W = np.array([4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36]
 Nx = 520
 Ny = 180
 u_in = 0.04
-Re = 220
+Re = 40
 visc = u_in * (Ny / 2) / Re
 tau = 3 * visc + 1 / 2
 eps = 0.0001
@@ -142,7 +142,7 @@ u0 = u_in * (1 + eps * np.sin(2 * np.pi * y / (Ny - 1)))
 v0_lattice[:, :, 0] = u0[_,:]
 v_lattice = v0_lattice
 
-steps = 20001
+steps = 5001
 photo_step = 100
 f_eq = calc_feq(rho_lattice, v0_lattice)
 f_lattice = np.copy(f_eq)
@@ -158,7 +158,8 @@ for s in range(steps):
     if s%photo_step == 0:    
         plotek = D2norm(v_lattice)
         plt.gcf().set_facecolor("pink")
-        plt.imshow(plotek.T, cmap="hot")    
+        plt.imshow(plotek.T, cmap="hot")
+        plt.title(f're: {Re}')    
         plt.savefig(f'{s:06d}.png')
         plt.close()
 # %%
