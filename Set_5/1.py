@@ -2,19 +2,22 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 def generate_binary_string(n=512):
     number = random.getrandbits(n)
     binary_string = format(number, "0{}b".format(n)).zfill(512)
     return np.array(list(binary_string))
-
+checkerboard = np.zeros((50, 50), dtype=int)
+checkerboard[::2, ::2] = 1  
+checkerboard[1::2, 1::2] = 1 
 
 # %%
 nx, ny = 50, 50
 n_chromos = 10
+n_space = 5
 iter_steps = 100
-evol_step = 50
-space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_chromos)])
+evol_step = 100
 chromos = np.array([generate_binary_string() for i in range(n_chromos)])
 direction = [
     (-1, 1),
@@ -53,7 +56,7 @@ def rule(grid, gene):
 
 
 def iter_grid(space, chromos):
-    for g in range(n_chromos):
+    for g in range(n_space):
         for i in range(iter_steps):
             space[g] = rule(space[g], chromos)
     return space
@@ -69,44 +72,52 @@ def change_chromos(chromos, fitness):
         fitness[np.where(fitness < 0)] = 0    
     weight = fitness[idx] / np.sum(fitness[idx])
     lived = chromos[idx]
-    cloned = chromos[np.random.choice(idx[0], size=3, p=weight)]
     kids = np.array([])
-    for k in range(2):
-        crossoverpoint = np.random.randint(512)
-        parents = random.sample(range(0, 5), 2)
-        kid = (np.concatenate((
-            chromos[idx][parents[0]][:crossoverpoint],
-            chromos[idx][parents[1]][crossoverpoint:]))
-        )
-        flip = np.random.choice(np.arange(512), size = np.random.randint(3))
-        for f in flip:
-            kid[f] = bit_flip(kid[f])
-        kids = np.append(
-            kids,
-            kid,
-        )
-    kids.shape = 2, 512
+    if len(idx[0] > 2):
+        cl = chromos.shape[0] - len(idx[0]) - 2
+        for k in range(2):
+            crossoverpoint = np.random.randint(512)
+            parents = random.sample(range(0, len(idx[0])), 2)
+            kid = (np.concatenate((
+                chromos[idx][parents[0]][:crossoverpoint],
+                chromos[idx][parents[1]][crossoverpoint:]))
+            )
+            flip = np.random.choice(np.arange(512), size = np.random.randint(3))
+            for f in flip:
+                kid[f] = bit_flip(kid[f])
+            kids = np.append(
+                kids,
+                kid,
+            )
+        kids.shape = 2, 512
+    else:
+        cl = chromos.shape[0] - len(idx[0])
+    cloned = chromos[np.random.choice(idx[0], size=cl, p=weight)]
     out = np.concatenate((lived, kids, cloned))
     return out
 
+def calc_fitness(grid):
+    f = 0
+    comp1 = np.roll(grid, (1, 0), (0, 1))
+    count = np.sum((comp1 == grid) * 1)
+    comp2 = np.roll(grid, (0, 1), (0, 1))
+    count += np.sum((comp2 == grid) * 1)
+    f -= 3 * count
+    comp3 = np.roll(grid, (1, 1), (0, 1))
+    count = np.sum((comp3 == grid) * 1)
+    f += count * 8 - (nx * ny - count) * 5
+    comp4 = np.roll(grid, (1, -1), (0, 1))
+    count = np.sum((comp4 == grid) * 1)
+    f += count * 8 - (nx * ny - count) * 5
+    return f
 
 def fitness(space, chromos):
     f_seq = []
     for ch in chromos:
-        f = 0
-        iter_grid(space, ch)
+        space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
+        space = iter_grid(space, ch)
         for s in space:
-            comp1 = np.roll(s, (1, 0), (0, 1))
-            count = np.sum((comp1 == s) * 1)
-            comp2 = np.roll(s, (0, 1), (0, 1))
-            count += np.sum((comp2 == s) * 1)
-            f -= 3 * count
-            comp3 = np.roll(s, (1, 1), (0, 1))
-            count = np.sum((comp3 == s) * 1)
-            f += count * 8 - (nx * ny - count) * 5
-            comp4 = np.roll(s, (1, -1), (0, 1))
-            count = np.sum((comp4 == s) * 1)
-            f += count * 8 - (nx * ny - count) * 5
+            f = calc_fitness(s)
         f_seq.append(f / space.shape[0])
     return np.array(f_seq)
 
@@ -120,7 +131,8 @@ def evol(space, chromos):
 # %%
 
 out_f = []
-for ev in range(evol_step):
+
+for ev in tqdm(range(evol_step)):
     f_seq, chromos = evol(space, chromos)
     out_f.append(np.max(f_seq)/np.sum(f_seq))
 
