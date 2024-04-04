@@ -2,12 +2,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-
-# def generate_binary_string(n=512):
-#     number = random.getrandbits(n)
-#     binary_string = format(number, "0{}b".format(n)).zfill(512)
-#     return np.array(list(binary_string))
-
+from tqdm import tqdm
 
 def generate_binary_string(n=512):
     return np.random.randint(2, size=n)
@@ -17,8 +12,9 @@ def generate_binary_string(n=512):
 nx, ny = 50, 50
 n_chromos = 10
 iter_steps = 100
-evol_step = 1
-space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_chromos)])
+evol_step = 15
+n_space = 5
+space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
 chromos = np.array([generate_binary_string() for i in range(n_chromos)])
 direction = [
     (-1, 1),
@@ -59,7 +55,7 @@ def rule(grid, gene):
 
 
 def iter_grid(space, chromos):
-    for g in range(n_chromos):
+    for g in range(n_space):
         for i in range(iter_steps):
             space[g] = rule(space[g], chromos)
     return space
@@ -69,10 +65,9 @@ def change_chromos(chromos, fitness):
     # print(chromos.shape)
     med = np.median(fitness)
     idx = np.where(fitness > med)
-    if med > 0:
-        pass
-    else:
-        fitness[np.where(fitness < 0)] = 0
+    if np.any(fitness < 0):
+        fit_min = np.min(fitness)
+        fitness = fitness + np.abs(fit_min)
     weight = fitness[idx] / np.sum(fitness[idx])
     lived = chromos[idx]
     cloned = chromos[np.random.choice(idx[0], size=3, p=weight)]
@@ -95,6 +90,7 @@ def change_chromos(chromos, fitness):
         )
     kids.shape = 2, 512
     out = np.concatenate((lived, kids, cloned))
+    print(out.shape)
     return out
 
 
@@ -103,17 +99,17 @@ def fitness(space, chromos):
     for ch in chromos:
         f = 0
         space = iter_grid(space, ch)
-        for s in space:
-            comp1 = np.roll(s, (1, 0), (0, 1))
-            count = np.sum((comp1 == s) * 1)
-            comp2 = np.roll(s, (0, 1), (0, 1))
-            count += np.sum((comp2 == s) * 1)
+        for grid in space:
+            comp1 = np.roll(grid, (1, 0), (0, 1))
+            count = np.sum((comp1 == grid) * 1)
+            comp2 = np.roll(grid, (0, 1), (0, 1))
+            count += np.sum((comp2 == grid) * 1)
             f -= 3 * count
-            comp3 = np.roll(s, (1, 1), (0, 1))
-            count = np.sum((comp3 == s) * 1)
+            comp3 = np.roll(grid, (1, 1), (0, 1))
+            count = np.sum((comp3 == grid) * 1)
             f += count * 8 - (nx * ny - count) * 5
-            comp4 = np.roll(s, (1, -1), (0, 1))
-            count = np.sum((comp4 == s) * 1)
+            comp4 = np.roll(grid, (1, -1), (0, 1))
+            count = np.sum((comp4 == grid) * 1)
             f += count * 8 - (nx * ny - count) * 5
         f_seq.append(f / space.shape[0])
     return np.array(f_seq)
@@ -122,14 +118,14 @@ def fitness(space, chromos):
 def evol(space, chromos):
     f_seq = fitness(space, chromos)
     # print(f_seq)
-    # chromos = change_chromos(chromos, f_seq)
+    chromos = change_chromos(chromos, f_seq)
     return f_seq, chromos
 
 
 # %%
 
 out_f = []
-for ev in range(evol_step):
+for ev in tqdm(range(evol_step)):
     f_seq, chromos = evol(space, chromos)
     out_f.append(np.max(f_seq) / np.sum(f_seq))
 
