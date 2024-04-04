@@ -12,7 +12,7 @@ def generate_binary_string(n=512):
 nx, ny = 50, 50
 n_chromos = 10
 iter_steps = 100
-evol_step = 15
+evol_step = 300
 n_space = 5
 space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
 chromos = np.array([generate_binary_string() for i in range(n_chromos)])
@@ -90,7 +90,7 @@ def change_chromos(chromos, fitness):
         )
     kids.shape = 2, 512
     out = np.concatenate((lived, kids, cloned))
-    print(out.shape)
+    # print(out.shape)
     return out
 
 
@@ -100,16 +100,18 @@ def fitness(space, chromos):
         f = 0
         space = iter_grid(space, ch)
         for grid in space:
-            comp1 = np.roll(grid, (1, 0), (0, 1))
-            count = np.sum((comp1 == grid) * 1)
-            comp2 = np.roll(grid, (0, 1), (0, 1))
-            count += np.sum((comp2 == grid) * 1)
+            comp1 = np.roll(grid, (1, 0), (0, 1)) == grid
+            count = np.sum(comp1 * 1)
+            comp2 = np.roll(grid, (0, 1), (0, 1)) == grid
+            count += np.sum(comp2 * 1)
             f -= 3 * count
+            cond = comp1 + comp2
+            idx = np.where(cond == False)
             comp3 = np.roll(grid, (1, 1), (0, 1))
-            count = np.sum((comp3 == grid) * 1)
+            count = np.sum((comp3 == grid)[idx] * 1)
             f += count * 8 - (nx * ny - count) * 5
             comp4 = np.roll(grid, (1, -1), (0, 1))
-            count = np.sum((comp4 == grid) * 1)
+            count = np.sum((comp4 == grid)[idx] * 1)
             f += count * 8 - (nx * ny - count) * 5
         f_seq.append(f / space.shape[0])
     return np.array(f_seq)
