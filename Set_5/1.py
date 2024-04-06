@@ -4,20 +4,24 @@ import random
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+
 def generate_binary_string(n=512):
     return np.random.randint(2, size=n)
+
 
 def generate_space(nx, ny):
     space = np.array([np.random.randint(0, 2, (nx, ny)) for i in range(n_space)])
     return space
+
+
 chb = np.zeros((50, 50), dtype=int)
-chb[::2, ::2] = 1  # Even rows and even columns
-chb[1::2, 1::2] = 1  # Odd rows and odd columns
+chb[::2, ::2] = 1
+chb[1::2, 1::2] = 1
 chb = chb[None, :]
 # %%
 n_binary = 512
 nx, ny = 50, 50
-n_chromos = 15
+n_chromos = 20
 iter_steps = 100
 evol_step = 300
 n_space = 10
@@ -34,7 +38,7 @@ direction = [
     (-1, -1),
 ]
 
-
+#%%
 def bit_flip(x):
     if x == 0:
         return 1
@@ -46,13 +50,13 @@ def bit_flip(x):
 def calc_N(grid):
     N = np.zeros(grid.shape, dtype=int)
     for p, d in enumerate(direction):
-        N += 2**p * np.roll(grid, d, axis=(0,1))
+        N += 2**p * np.roll(grid, d, axis=(0, 1))
     return N
+
 
 def rule(grid, gene):
     N = calc_N(grid)
     idx = N.flatten()
-    # print(N)
     out = gene[idx.astype(int)]
     return out.reshape(nx, ny)
 
@@ -63,22 +67,27 @@ def iter_grid(space, chromos):
             space[g] = rule(space[g], chromos)
     return space
 
+def iter_grid_plot(grid, chrom, t_step = 5):
+    for i in range(iter_steps):
+        grid = np.int32(rule(grid, chrom))
+        if i%t_step == 0:
+            plt.imshow(grid)
+            plt.title(f'krok: {i}')    
+            plt.savefig(f'{i:06d}.png')
+            plt.close()
 
 def change_chromos(chromos, fitness):
     if np.any(fitness < 0):
         fit_min = np.min(fitness)
-        fitness = fitness + np.abs(fit_min)+1
+        fitness = fitness + np.abs(fit_min) + 1
     med = np.median(fitness)
     idx = np.where(fitness >= med)
-    weight = (fitness[idx] / np.sum(fitness[idx]))
+    weight = fitness[idx] / np.sum(fitness[idx])
     lived = chromos[idx][:5]
-    # print(fitness)
     cloned = chromos[np.random.choice(idx[0], size=5, p=weight)]
-    cloned = cloned
-    # print(lived.shape)
-    # print(cloned.shape)
     kids = np.array([])
-    for k in range(5):
+    n_kids = 10
+    for k in range(n_kids):
         crossoverpoint = np.random.randint(n_binary)
         parents = random.sample(range(0, 5), 2)
         kid = np.concatenate(
@@ -94,14 +103,11 @@ def change_chromos(chromos, fitness):
             kids,
             kid,
         )
-    kids.shape = 5, n_binary
+    kids.shape = n_kids, n_binary
     out = np.concatenate((lived, kids, cloned))
-    # out = np.concatenate((lived, cloned))
-    # print(out.shape)
-    # print(lived.shape)
-    # print(cloned.shape)
-    assert(out.shape[0]==n_chromos)
+    assert out.shape[0] == n_chromos
     return out
+
 
 def calc_fitness(space):
     f = 0
@@ -118,8 +124,8 @@ def calc_fitness(space):
         f += count * 8 - (len(idx[0]) - count) * 5
         comp4 = np.roll(grid, (-1, -1), (0, 1))
         count = np.sum((comp4 == grid)[idx] * 1)
-        f += count * 8 - (len(idx[0]) - count) * 5    
-    return f/space.shape[0]
+        f += count * 8 - (len(idx[0]) - count) * 5
+    return f / space.shape[0]
 
 
 def fitness(space, chromos):
@@ -139,12 +145,16 @@ def evol(space, chromos):
 
 
 # %%
-
+'ewolucja genetyczna'
 out_f = []
 for ev in tqdm(range(evol_step)):
     f_seq, chromos = evol(generate_space(nx, ny), chromos)
-    out_f.append(np.max(f_seq))
+    out_f.append(np.average(f_seq))
 
 # %%
 plt.plot(np.arange(len(out_f)), out_f)
-    # %%
+# %%
+'foto ewolucja grida dla zadanego genomu'
+m = generate_space(nx, ny)
+iter_grid_plot(m[0], chromos[0])
+# %%
