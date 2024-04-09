@@ -20,10 +20,10 @@ chb[1::2, 1::2] = 1
 chb = chb[None, :]
 # %%
 n_binary = 512
-nx, ny = 50, 50
+nx, ny = 500, 500
 n_chromos = 20
 iter_steps = 100
-evol_step = 300
+evol_step = 250
 n_space = 10
 chromos = np.array([generate_binary_string(n=n_binary) for i in range(n_chromos)])
 direction = [
