@@ -14,17 +14,17 @@ def generate_space(nx, ny):
     return space
 
 
-chb = np.zeros((50, 50), dtype=int)
+chb = np.zeros((500, 500), dtype=int)
 chb[::2, ::2] = 1
 chb[1::2, 1::2] = 1
 chb = chb[None, :]
 # %%
 n_binary = 512
-nx, ny = 500, 500
+nx, ny = 50, 50
 n_chromos = 20
 iter_steps = 100
-evol_step = 250
-n_space = 10
+evol_step = 1500
+n_space = 20
 chromos = np.array([generate_binary_string(n=n_binary) for i in range(n_chromos)])
 direction = [
     (1, 1),
@@ -72,6 +72,7 @@ def iter_grid_plot(grid, chrom, t_step = 5):
         grid = np.int32(rule(grid, chrom))
         if i%t_step == 0:
             plt.imshow(grid)
+            plt.colorbar()
             plt.title(f'krok: {i}')    
             plt.savefig(f'{i:06d}.png')
             plt.close()
@@ -156,5 +157,13 @@ plt.plot(np.arange(len(out_f)), out_f)
 # %%
 'foto ewolucja grida dla zadanego genomu'
 m = generate_space(nx, ny)
-iter_grid_plot(m[0], chromos[0])
+iter_grid_plot(m[4], chromos[19], t_step = 499)
+# %%
+np.savetxt('out_1.txt', chromos[1])
+# %%
+nx, ny = 500, 500
+iter_steps = 2000
+# %%
+nx, ny = 50, 50
+iter_steps = 500
 # %%
