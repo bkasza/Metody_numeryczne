@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 # %%
 'task 2'
-N = 200
-sample = 500
+N = 8
+sample = 20000
 R = np.sqrt(2*N)
 'gue'
 def get_gue():
@@ -24,8 +24,8 @@ def get_goe():
     return eig_goe
 # %%
 'slicer'
-# eig = get_gue()
-eig = get_goe()
+eig = get_gue()
+# eig = get_goe()
 assert(np.allclose(np.imag(eig), 0))
 eig = np.real(eig)
 #%%
@@ -57,7 +57,9 @@ df = df/np.average(df)
 n, bins, _= plt.hist(df, 50, density=True, facecolor='cyan', alpha=0.9, range =(0, 5))
 goe = np.pi/2*bins*np.exp(-np.pi/4*bins**2)
 gue = 32/np.pi**2*bins**2*np.exp(-4/np.pi*bins**2)
-# plt.plot(bins, gue, 'r-', linewidth=2)
-plt.plot(bins, goe, 'r-', linewidth=2)
+plt.plot(bins, gue, 'r-', linewidth=2, label = 'gue')
+# plt.plot(bins, goe, 'r-', linewidth=2, label = 'goe')
+plt.legend()
+plt.xlabel('s')
 plt.show()
 # %%
