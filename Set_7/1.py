@@ -41,7 +41,8 @@ def get_states(N):
     psi_seq.shape = N, 2
     return psi_seq
 # %%
-state_seq = get_states(20)
+N = 1000
+state_seq = get_states(N)
 # state_seq = get_random_states()
 meas_seq = measure(state_seq)
 plt.hist(meas_seq, range=[0, 1])
