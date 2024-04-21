@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.linalg import expm
 import scipy
 import scipy.optimize
-
+plt.rc('text', usetex=True)
+plt.rc('text.latex', preamble=r'\usepackage{physics}')
 # %%
 "operators definition"
 I = np.eye(2)
@@ -80,7 +81,10 @@ for i, param in enumerate(param_seq):
         val = get_payoffs_A(out)
         val_seq.append(val)
     plt.plot(ga_seq, val_seq, label=name_seq[i])
+    plt.ylabel('Alice payoff')
+    plt.xlabel(r'$\gamma$')
     plt.legend()
+plt.savefig('plot1.png', dpi = 600)
 # %%
 "dla 2b"
 "maksymalne gamma = pi/2"
@@ -97,8 +101,10 @@ for i, param in enumerate(param_seq):
         val = get_payoffs_A(out)
         val_seq.append(val)
     plt.plot(th_seq, val_seq, label=name_seq[i])
-    plt.xlabel("theta")
+    plt.xlabel(r"$\theta$")
+    plt.ylabel('Alice payoff')
     plt.legend()
+plt.savefig('plot2.png', dpi = 600)
 # %%
 "ptk c"
 
@@ -127,7 +133,8 @@ for ga in ga_seq:
 res = np.array(res)
 
 # %%
-plt.plot(ga_seq, -res, label = 'payoff_A')
-plt.legend()
-plt.xlabel('theta')
+plt.plot(ga_seq, -res)
+plt.ylabel('Alice payoff')
+plt.xlabel(r'$\gamma$')
+plt.savefig('plot3.png', dpi = 600)
 # %%

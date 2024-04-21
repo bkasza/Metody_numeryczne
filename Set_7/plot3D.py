@@ -79,8 +79,8 @@ class ApplicationWindow(QMainWindow):
 
     def on_click(self, event):
         azim, elev = self._ax.azim, self._ax.elev
-        self.slider_azim.setValue(azim + 180)
-        self.slider_elev.setValue(elev + 180)
+        self.slider_azim.setValue(int(azim + 180))
+        self.slider_elev.setValue(int(elev + 180))
 
     def set_canvas_configuration(self):
         self.fig.set_canvas(self.canvas)

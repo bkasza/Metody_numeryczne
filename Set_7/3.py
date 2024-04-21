@@ -3,17 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import expm
-import scipy
-import scipy.optimize
 import sys
 import numpy as np
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import axes3d
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QHBoxLayout,
-                             QLabel, QSlider, QVBoxLayout, QWidget)
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication
 
 "operators definition"
 I = np.eye(2)
@@ -71,7 +63,7 @@ def get_sequencial_transform(Ua, Ub, D, ga):
 
 "def C and D"
 pi = np.pi
-tstep = 100
+tstep = 50
 t_seq = np.linspace(-1, 1, tstep)
 # ga_seq = np.linspace(0, np.pi / 2, 100)
 C = get_U(0, 0)
