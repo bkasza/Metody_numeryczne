@@ -133,8 +133,8 @@ for ga in ga_seq:
 res2 = np.array(res)
 
 # %%
-plt.plot(ga_seq, -res1, label = r'$\hat{U}_B = \hat{D}$')
-# plt.plot(ga_seq, -res2, label = r'$\hat{U}_B = \hat{C}$')
+# plt.plot(ga_seq, -res1, label = r'$\hat{U}_B = \hat{D}$')
+plt.plot(ga_seq, -res2, label = r'$\hat{U}_B = \hat{C}$')
 plt.legend()
 plt.ylabel('Alice payoff')
 # plt.title(r'$\hat{U}_B = \hat{C}$')
