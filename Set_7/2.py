@@ -20,7 +20,6 @@ weights_A = np.array([3, 0, 5, 1])
 weights_B = np.array([3, 5, 0, 1])
 ket_0 = np.array([1, 0])
 ket_1 = np.array([0, 1])
-states = np.array([0, 1])
 
 
 def get_J(D, ga):
@@ -72,7 +71,7 @@ D = get_U(np.pi, 0)
 Ua = D
 Ub = Q
 param_seq = [(D, D), (D, Q), (Q, D), (Q, Q)]
-name_seq = ["(D,D)", "(D, Q)", "(Q, D)", "(Q, Q)"]
+name_seq = ["(D, D)", "(D, Q)", "(Q, D)", "(Q, Q)"]
 for i, param in enumerate(param_seq):
     Ua, Ub = param
     val_seq = []
@@ -89,20 +88,20 @@ plt.savefig('plot1.png', dpi = 600)
 "dla 2b"
 "maksymalne gamma = pi/2"
 ga = np.pi / 2
-param_seq = [C, D, M]
-th_seq = np.linspace(0, 2 * np.pi, 100)
-name_seq = ["(C, U)", "(D, U)", "(M, U)"]
+param_seq = [C, D, M.T]
+th_seq = np.linspace(0, np.pi, 100)
+name_seq = [r"$(C, U(\theta, 0))$", r"$(D, U(\theta, 0))$", r"$(M, U(\theta, 0))$"]
 for i, param in enumerate(param_seq):
     Ua = param
     val_seq = []
     for th in th_seq:
         Ub = get_U(th, 0)
         out = get_sequencial_transform(Ua, Ub, D, ga)
-        val = get_payoffs_A(out)
+        val = get_payoffs_B(out)
         val_seq.append(val)
     plt.plot(th_seq, val_seq, label=name_seq[i])
     plt.xlabel(r"$\theta$")
-    plt.ylabel('Alice payoff')
+    plt.ylabel('Bobs payoff')
     plt.legend()
 plt.savefig('plot2.png', dpi = 600)
 # %%
