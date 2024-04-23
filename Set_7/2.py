@@ -113,7 +113,7 @@ def payoff_A(angles, *args):
     ga = args[0]
     theta, phi = angles
     Ua = get_U(theta, phi)
-    Ub = D
+    Ub = C
     out = get_sequencial_transform(Ua, Ub, D, ga)
     payoff = get_payoffs_A(out)
     return -payoff  # diff. evo. minimizes, so to maximize we minimize the negation
@@ -130,11 +130,14 @@ ga_seq = np.linspace(0, np.pi / 2, 100)
 res = []
 for ga in ga_seq:
     res.append(opt(ga))
-res = np.array(res)
+res2 = np.array(res)
 
 # %%
-plt.plot(ga_seq, -res)
+plt.plot(ga_seq, -res1, label = r'$\hat{U}_B = \hat{D}$')
+# plt.plot(ga_seq, -res2, label = r'$\hat{U}_B = \hat{C}$')
+plt.legend()
 plt.ylabel('Alice payoff')
+# plt.title(r'$\hat{U}_B = \hat{C}$')
 plt.xlabel(r'$\gamma$')
 plt.savefig('plot3.png', dpi = 600)
 # %%

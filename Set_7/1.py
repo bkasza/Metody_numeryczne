@@ -49,7 +49,7 @@ def get_states(N, val = None):
     return psi_seq, al
 # %%
 N = 1000
-state_seq, al = get_states(N, np.pi/2)
+state_seq, al = get_states(N, 1)
 # state_seq = get_random_states()
 prob = (np.cos(al/2)**2, np.sin(al/2)**2)
 meas_seq = measure(state_seq)
@@ -57,5 +57,6 @@ meas_seq = meas_seq
 plt.hist(meas_seq, bins = 3)
 plt.ylabel('Counts')
 plt.title(rf'Measurement vs expected values: $p(\ket{0}) = $ {prob[0].round((2))}, $p(\ket{1}) = $ {prob[1].round((2))}')
-# plt.xticks([1/6, 5/6], [r'$\ket{0}$', r'$\ket{1}$'])
+plt.xticks([1/6, 5/6], [r'$\ket{0}$', r'$\ket{1}$'])
+plt.savefig('plot0.png', dpi = 600)
 # %%

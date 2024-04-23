@@ -17,6 +17,7 @@ qiskit = "^1.0.2"
 pyqtgraph = "^0.13.5"
 pyqt6 = "^6.6.1"
 pyqt6-datavisualization = "^6.6.0"
+qiskit-aer = "^0.14.0.1"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
