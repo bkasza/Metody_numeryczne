@@ -84,7 +84,6 @@ for x, tA in enumerate(t_seq):
         grid.append([Ua, Ub])
 grid = np.array(grid)
 grid.shape = tstep, tstep, 2, 2, 2
-# ga = np.pi/2
 ga = 0
 val_map = np.zeros((tstep, tstep))
 for x in range(tstep):
