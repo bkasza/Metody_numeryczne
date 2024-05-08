@@ -29,39 +29,59 @@ def find_unflip_positive(i, H):
             out.append(idx)
     return out
 
-def do_aval():
-        while(np.sum(s) != L**2 or i == 1):
-            i_trig = np.unravel_index(np.argmax(h_loc + (s+1)*(-100)), h_loc.shape)
-            H = - h_loc[i_trig]
-            d = []
-            d.append(i_trig)
-            i = 0
-            flipped = []
-            while len(d) > 0:
-                itmp = d.pop()
-                if s[itmp] == -1: 
-                    update(itmp)
-                    d += find_unflip_positive(itmp, H)    
-                # plt.imshow(s,interpolation=None)
-                # plt.colorbar()
-                # plt.show()
-                # plt.clf()
-            flipped.append((np.sum(s)+L**2)/2)
-            i += 1
-            return flipped[0]
+def do_aval(aval):
+    Hseq = []
+    Mseq = []
+    while(np.sum(s) != L**2 or i == 1):
+        i_trig = np.unravel_index(np.argmax(h_loc + (s+1)*(-100)), h_loc.shape)
+        H = - h_loc[i_trig]
+        d = []
+        d.append(i_trig)
+        i = 0
+        flipped = []
+        while len(d) > 0:
+            itmp = d.pop()
+            if s[itmp] == -1: 
+                update(itmp)
+                d += find_unflip_positive(itmp, H)    
+            # plt.imshow(s,interpolation=None)
+            # plt.colorbar()
+            # plt.show()
+            # plt.clf()
+        flipped.append((np.sum(s)+L**2)/2)
+        single_aval = np.int64((s+1)/2)
+        aval += single_aval
+        Hseq.append(H)
+        Mseq.append(np.sum(s)/L**2)
+    return aval, Hseq, Mseq
 # %%
-'task 1'
+'task 2'
+'A'
 out = []
+L = 100
 nsample = 1000
-R = 1.4
-for i in range(nsample):
-    s = np.ones((L, L), dtype = int)*-1
-    aval = np.zeros((L, L), dtype = int)
-    h_rnd = np.random.randn(L, L) * R
-    h_loc = np.ones( (L, L) ) * (-4.0) + h_rnd
-    out.append(do_aval())
-out = np.array(out)
-print(f'R: {R}, avg: {np.sum(out)/nsample}({(np.std(out)/np.sqrt(nsample)).round(3)})')
+R = 0.9
+# R = 1.4
+# R = 2.1
+s = np.ones((L, L), dtype = int)*-1
+aval = np.zeros((L, L), dtype = np.int64)
+h_rnd = np.random.randn(L, L) * R
+h_loc = np.ones( (L, L) ) * (-4.0) + h_rnd
+aval, Hseq, Mseq = do_aval(aval)
+plt.imshow(aval,interpolation=None,cmap=cm.gist_rainbow)
+plt.colorbar()
+plt.title(f'R: {R}')
 #%%
-
+'B'
+L = 300
+# R = 0.9
+R = 1.4
+# R = 2.1
+s = np.ones((L, L), dtype = int)*-1
+aval = np.zeros((L, L), dtype = np.int64)
+h_rnd = np.random.randn(L, L) * R
+h_loc = np.ones( (L, L) ) * (-4.0) + h_rnd
+aval, Hseq, Mseq = do_aval(aval)
+plt.plot(Mseq, Hseq)
+plt.title(f'R: {R}')
 # %%
