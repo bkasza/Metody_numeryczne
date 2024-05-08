@@ -1,4 +1,5 @@
 'qba is back'
+'task 2, avalanches plot'
 #%%
 import matplotlib.pyplot as plt
 import numpy as np
