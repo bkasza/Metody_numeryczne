@@ -29,25 +29,21 @@ def find_unflip_positive(i, H):
     return out
 
 def do_aval():
-        while(np.sum(s) != L**2 or i == 1):
-            i_trig = np.unravel_index(np.argmax(h_loc + (s+1)*(-100)), h_loc.shape)
-            H = - h_loc[i_trig]
-            d = []
-            d.append(i_trig)
-            i = 0
-            flipped = []
-            while len(d) > 0:
-                itmp = d.pop()
-                if s[itmp] == -1: 
-                    update(itmp)
-                    d += find_unflip_positive(itmp, H)    
-                # plt.imshow(s,interpolation=None)
-                # plt.colorbar()
-                # plt.show()
-                # plt.clf()
-            flipped.append((np.sum(s)+L**2)/2)
-            i += 1
-            return flipped[0]
+    i = 0
+    while(i < 1):
+        i_trig = np.unravel_index(np.argmax(h_loc + (s+1)*(-100)), h_loc.shape)
+        H = - h_loc[i_trig]
+        d = []
+        d.append(i_trig)
+        flipped = []
+        while len(d) > 0:
+            itmp = d.pop(0)
+            if s[itmp] == -1: 
+                update(itmp)
+                d += find_unflip_positive(itmp, H)    
+        flipped.append((np.sum(s)+L**2)/2)
+        i += 1
+    return flipped[0]
 # %%
 'task 1'
 out = []
@@ -55,7 +51,6 @@ nsample = 1000
 R = 1.4
 for i in range(nsample):
     s = np.ones((L, L), dtype = int)*-1
-    aval = np.zeros((L, L), dtype = int)
     h_rnd = np.random.randn(L, L) * R
     h_loc = np.ones( (L, L) ) * (-4.0) + h_rnd
     out.append(do_aval())
