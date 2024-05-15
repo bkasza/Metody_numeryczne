@@ -61,8 +61,8 @@ out = []
 L = 100
 nsample = 1000
 R = 0.9
-# R = 1.4
-# R = 2.1
+R = 1.4
+R = 2.1
 s = np.ones((L, L), dtype = int)*-1
 aval = np.zeros((L, L), dtype = np.int64)
 h_rnd = np.random.randn(L, L) * R
@@ -74,14 +74,17 @@ plt.title(f'R: {R}')
 #%%
 'B'
 L = 300
-# R = 0.9
-R = 1.4
-# R = 2.1
+R = 0.9
+# R = 1.4
+R = 2.1
 s = np.ones((L, L), dtype = int)*-1
 aval = np.zeros((L, L), dtype = np.int64)
 h_rnd = np.random.randn(L, L) * R
 h_loc = np.ones( (L, L) ) * (-4.0) + h_rnd
 aval, Hseq, Mseq = do_aval(aval)
 plt.plot(Mseq, Hseq)
+plt.ylim(-3, 3)
+plt.ylabel('H')
+plt.xlabel('h')
 plt.title(f'R: {R}')
 # %%

@@ -52,7 +52,9 @@ def do_aval():
 'task 1'
 out = []
 nsample = 1000
-R = 1.4
+R = 0.7
+# R = 0.9
+# R = 1.4
 for i in range(nsample):
     s = np.ones((L, L), dtype = int)*-1
     aval = np.zeros((L, L), dtype = int)
