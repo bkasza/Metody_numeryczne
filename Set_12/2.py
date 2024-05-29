@@ -56,7 +56,7 @@ def extra(N):
     x_stable = np.array([recognition(W, m, 1000) for m in x_per]) 
     avg = np.average(np.einsum('ai, ai -> a',x_per, x_stable)/J, axis = 0)
     return avg
-N_seq = np.array(range(1, 100))
+N_seq = np.array(range(1, 50))
 x = N_seq/J
 y = [extra(n) for n in N_seq]
 plt.plot(x, y)
