@@ -98,7 +98,7 @@ pat = np.array([P1, P2, P3, P4])
 x = [x.flatten() * 2 - 1 for x in pat]
 out = np.array([np.outer(x, x) for x in x])
 W = np.average(out, axis=0) - np.eye(nx * ny, nx * ny)
-messed = [random_flip(x, n=5) for x in x]
-fixed = [recognition(W, m, 15) for m in messed]
+messed = [random_flip(x, n=20) for x in x]
+fixed = [recognition(W, m, 5) for m in messed]
 plot_together(messed, fixed)
 # %%
