@@ -9,7 +9,9 @@ from matplotlib import cm
 D = 5
 be = 10
 dt = 0.01
-edges = np.genfromtxt(r'zachary1.txt')
+edges = np.genfromtxt(r'zachary1.txt', dtype = int)
+edges = np.concatenate((edges, edges[:, ::-1]), axis = 0)
+weights = np.genfromtxt(r'zachary2.txt')/7
 #%%
 'function definitions'
 def f(x):
@@ -71,8 +73,8 @@ def plot(g, i):
 def loop(g, nodes, edges, steps, interval = 99):
     vals = []
     for s in range(steps):
-        # if s%interval == 0:
-        #     plot(g, s)
+        if s%interval == 0:
+            plot(g, s)
         g = iter(g, nodes, edges)
         vals.append(get_division(g, edges))
     return vals
@@ -93,7 +95,7 @@ for e in edges:
 
 # %%
 'do stuff'
-steps = 5500
+steps = 1500
 vals = loop(g, nodes, edges, steps)
 plt.plot(range(steps), vals)
 # %%
