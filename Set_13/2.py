@@ -91,11 +91,11 @@ for n in nodes:
     else:
         g.nodes[n]['state'] = 0.5
 for e in edges:
-    g.edges[*e]['weight'] = 0.5
+    g.edges[*e]['weight'] = weights[*e]
 
 # %%
 'do stuff'
-steps = 1500
+steps = 3000
 vals = loop(g, nodes, edges, steps)
 plt.plot(range(steps), vals)
 # %%

@@ -10,6 +10,7 @@ D = 5
 be = 10
 dt = 0.01
 edges = np.genfromtxt(r'zachary1.txt')
+edges = np.concatenate((edges, edges[:, ::-1]), axis = 0)
 #%%
 'function definitions'
 def f(x):
@@ -93,7 +94,7 @@ for e in edges:
 
 # %%
 'do stuff'
-steps = 5500
+steps = 2000
 vals = loop(g, nodes, edges, steps)
 plt.plot(range(steps), vals)
 # %%
