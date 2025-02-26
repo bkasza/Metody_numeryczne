@@ -1,1 +1,1 @@
-"o czym to wszystko"
+"o czym to wszystko XD"
