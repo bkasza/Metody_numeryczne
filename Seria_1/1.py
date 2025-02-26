@@ -1,0 +1,1 @@
+"o czym to wszystko"

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cmpp"
+name = "metody_numeryczne"
 version = "0.1.0"
 description = ""
 authors = ["WW18 <wwasil@gmail.com>"]
@@ -20,6 +20,7 @@ numba = "^0.59.1"
 qiskit = "1.0.1"
 qiskit-aer = "^0.14.0.1"
 networkx = "^3.3"
+pandas = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
